@@ -3,9 +3,15 @@
 
 ;//////////////////////////////////// PRINT ANY NUMBER
 print_number macro number
+  push dx
+  push ax
+  xor dx, dx
+  mov dx, number
   xor ax, ax
-  mov ax, number
+  mov ax, dx
   call PrintNumber
+  pop ax
+  pop dx
 endm
 
 print_char macro char
@@ -19,16 +25,34 @@ print_char macro char
 	pop ax
 endm
 
-getTmp macro pos
-	push ax
+getTmpAX macro pos
 	push bx
 	push cx
 	push dx
+	push si	
 	
-	pop ax
-	pop bx
-	pop cx
+	mov si, pos
+	mov ax, tmp[si]
+	
+	pop si
 	pop dx
+	pop cx
+	pop bx
+endm
+
+getTmpBX macro pos
+	push ax
+	push cx
+	push dx
+	push si
+		
+	mov si, pos
+	mov bx, tmp[si]
+	
+	pop si
+	pop dx
+	pop cx
+	pop ax
 endm
 
 setTmp macro pos, val
@@ -36,16 +60,26 @@ setTmp macro pos, val
 	push bx
 	push cx
 	push dx
+	push si
+	push di		
 	
-	pop ax
-	pop bx
-	pop cx
+	mov di, pos
+	mov tmp[di], val
+	
+	pop di
+	pop si
 	pop dx
+	pop cx
+	pop bx
+	pop ax
 endm
+
 
 .386
 .data
 
+P dw 1
+S dw 1
      
 tmp dw 0
 	dw 0
@@ -224,10 +258,16 @@ heap dw 0
 
 		call text_mode	
 		
-		mov ax, 98
-		mov di, 0
-		mov tmp[di], ax
-		print_char tmp[0]
+		setTmp 1, 30
+		getTmpAX 1
+		mov bx, 3
+		imul bx
+		setTmp 2, ax
+		getTmpAX 2
+		print_char ax
+		print_char bx
+		print_number ax
+		print_number bx
 		
 		.exit
 	main endp
